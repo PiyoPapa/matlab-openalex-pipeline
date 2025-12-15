@@ -1,4 +1,5 @@
 # matlab-openalex-pipeline
+[![Open in MATLAB Online](https://matlab.mathworks.com/open/github/v1.svg)](https://matlab.mathworks.com/open/github/v1?repo=PiyoPapa/matlab-openalex-pipeline)
 
 A MATLAB-based pipeline for fetching OpenAlex **Works** metadata at scale using cursor-based pagination, with resumable checkpoints and JSONL output.
 
@@ -68,6 +69,9 @@ matlab-openalex-pipeline/
 ```
 
 ## Quick start
+> **MATLAB Online users**  
+> This repository can be opened directly in MATLAB Online using the button above.  
+> Output files will be saved within the MATLAB Online session and can be downloaded manually.
 
 1. Clone this repository. 
 2. Open MATLAB. 
