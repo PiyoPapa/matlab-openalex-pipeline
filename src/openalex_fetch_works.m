@@ -1,7 +1,7 @@
-function allResults = demo_fetch(query, varargin)
-%DEMO_FETCH  Fetch OpenAlex Works metadata using cursor-based pagination
+function allResults = openalex_fetch_works(query, varargin)
+%OPENALEX_FETCH_WORKS  Fetch OpenAlex Works metadata using cursor-based pagination
 %
-% allResults = demo_fetch(query, ...
+% allResults = openalex_fetch_works(query, ...
 %   'perPage', 200, ...
 %   'maxRecords', 50000, ...
 %   'baseUrl', "https://api.openalex.org/works", ...
@@ -33,6 +33,7 @@ addParameter(p, 'pauseSec', 0.2, @(x) isnumeric(x) && isscalar(x) && x >= 0);
 addParameter(p, 'verbose', true, @(x) islogical(x) && isscalar(x));
 addParameter(p, 'saveEvery', 5, @(x) isnumeric(x) && isscalar(x) && x > 0);
 addParameter(p, 'saveEveryRecords', 5000, @(x) isnumeric(x) && isscalar(x) && x > 0);
+addParameter(p, 'progressEveryRecords', 1000, @(x) isnumeric(x) && isscalar(x) && x > 0);
 addParameter(p, 'jsonlFile', "", @(x) ischar(x) || isstring(x));
 addParameter(p, 'keepInMemory', false, @(x) islogical(x) && isscalar(x));
 parse(p, query, varargin{:});
@@ -51,6 +52,7 @@ pauseSec   = opt.pauseSec;
 verbose    = opt.verbose;
 saveEvery  = opt.saveEvery;
 saveEveryRecords = opt.saveEveryRecords;
+progressEveryRecords = opt.progressEveryRecords;
 jsonlFile  = string(opt.jsonlFile);
 keepInMemory = opt.keepInMemory;
 
@@ -87,7 +89,21 @@ nextCursor = "*";
 nRequests  = 0;
 lastSavedRecords = 0;
 nRecords = 0;               
-fidJsonl = -1;              
+fidJsonl = -1;
+lastProgressRecords = 0;
+tStart = tic;
+didLogFirstHttp = false;
+
+if verbose
+    logtag('start', 'query="%s" filter="%s" perPage=%d maxRecords=%s', ...
+        queryStr, filterStr, perPage, string(maxRecords));
+    if strlength(outFile) > 0
+        logtag('start', 'checkpoint=%s', outFile);
+    end
+    if strlength(jsonlFile) > 0
+        logtag('start', 'jsonl=%s', jsonlFile);
+    end
+end
 
 % -------------------------------
 % Resume from checkpoint if available
@@ -154,11 +170,33 @@ while true
     end
 
     try
+        % --- first-request visibility (reduce "silent" anxiety) ---
+        if verbose && ~didLogFirstHttp
+            logtag('http', 'request #1 sending...');
+            didLogFirstHttp = true;
+        end
+
+        tHttp = tic;
+        % --- first-request visibility (reduce "silent" anxiety) ---
+        if verbose && ~didLogFirstHttp
+            logtag('http', 'request #1 sending...');
+            didLogFirstHttp = true;
+        end
+
+        tHttp = tic;
         data = webread(apiUrl, options);
+        dt = toc(tHttp);
+        if verbose && nRequests == 0
+            logtag('http', 'response #1 received (%.2fs)', dt);
+        end
+        dt = toc(tHttp);
+        if verbose && nRequests == 0
+            logtag('http', 'response #1 received (%.2fs)', dt);
+        end
     catch ME
         if verbose
             logtag('warn', 'webread failed: %s', ME.message);
-            logtag('Done', 'total records=%d', numel(allResults));
+            logtag('Done', 'total records=%d', nRecords);
         end
         break;
     end
@@ -182,6 +220,22 @@ while true
     %  ---- Count retrieved records ----
     got = numel(data.results);
     nRecords = nRecords + got;
+
+    % ---- progress log (psychological safety) ----
+    if verbose && (nRecords - lastProgressRecords) >= progressEveryRecords
+        elapsed = toc(tStart);
+        rate = nRecords / max(elapsed, 1e-6); % records/sec
+        if isfinite(maxRecords)
+            rem = max(maxRecords - nRecords, 0);
+            eta = rem / max(rate, 1e-6);
+            logtag('progress', 'records=%d req=%d rate=%.1f rec/s ETA=%.0fs', ...
+                nRecords, nRequests, rate, eta);
+        else
+            logtag('progress', 'records=%d req=%d rate=%.1f rec/s', ...
+                nRecords, nRequests, rate);
+        end
+        lastProgressRecords = nRecords;
+    end
 
     % ---- Optional in-memory accumulation ----
     if keepInMemory

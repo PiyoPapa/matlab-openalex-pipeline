@@ -58,7 +58,7 @@ No additional toolbox is required under typical conditions
 ```text
 matlab-openalex-pipeline/
 ├─ src/                # Library functions
-│  ├─ demo_fetch.m
+│  ├─ openalex_fetch_works.m
 │  └─ openalex_read_jsonl.m
 ├─ examples/           # Runnable demos
 │  └─ demo_fetch_example.m
@@ -85,7 +85,7 @@ This will:
 ### Checkpoint file (`.mat`)
 
 Example:
-```matlab
+```text
 data/openalex_MATLAB_cursor_en_100000.mat
 ```
 
@@ -98,7 +98,7 @@ It is intentionally small and frequently overwritten.
 
 ### Results file (.jsonl)
 Example:
-```matlab
+```text
 data/openalex_MATLAB_cursor_en_100000.jsonl
 ```
 This file is append-only and can grow large.
