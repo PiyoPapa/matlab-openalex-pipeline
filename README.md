@@ -1,7 +1,6 @@
 # matlab-openalex-pipeline
 
-A MATLAB-based pipeline for fetching OpenAlex **Works** metadata at scale  
-using cursor-based pagination, with resumable checkpoints and JSONL output.
+A MATLAB-based pipeline for fetching OpenAlex **Works** metadata at scale using cursor-based pagination, with resumable checkpoints and JSONL output.
 
 This repository is designed for **large-scale bibliographic data collection**
 (e.g. tens to hundreds of thousands of records) in research and analytics
@@ -73,7 +72,7 @@ matlab-openalex-pipeline/
 1. Clone this repository. 
 2. Open MATLAB. 
 3. Run the example script:
-```text
+```matlab
 run("examples/demo_fetch_example.m")
 ```
 
