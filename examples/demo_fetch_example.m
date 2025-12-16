@@ -36,3 +36,10 @@ openalex_fetch_works(query, ...
   'progressEveryRecords', 1000, ...
   'pauseSec', 0.2, ...
   'verbose', true);
+
+% ---- Exports ----
+stdJsonl = fullfile(outDir, "openalex_MATLAB_cursor_en" + tag + ".standard.jsonl");
+openalex_write_jsonl(jsonlFile, stdJsonl, 'verbose', true);
+
+csvFile = fullfile(outDir, "openalex_MATLAB_cursor_en" + tag + ".works.csv");
+openalex_export_csv(jsonlFile, csvFile, 'verbose', true);

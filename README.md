@@ -62,15 +62,17 @@ No additional toolbox is required under typical conditions
 ## Repository layout
 
 ```text
-matlab-openalex-pipeline/
-├─ src/                # Library functions
-│  ├─ openalex_fetch_works.m
-│  └─ openalex_read_jsonl.m
-├─ examples/           # Runnable demos
-│  └─ demo_fetch_example.m
-├─ data/               # Local outputs (gitignored)
-├─ docs/               # Optional documentation
-└─ README.md
+ matlab-openalex-pipeline/
+ ├─ src/                # Library functions
+ │  ├─ openalex_export_csv.m
+ │  ├─ openalex_fetch_works.m
+ │  ├─ openalex_read_jsonl.m
+ │  └─ openalex_write_jsonl.m
+ ├─ examples/           # Runnable demos
+ │  └─ demo_fetch_example.m
+ ├─ data/               # Local outputs (gitignored)
+ ├─ docs/               # Optional documentation
+ └─ README.md
 ```
 
 ## Quick start
@@ -138,6 +140,21 @@ results = openalex_read_jsonl( ...
     "verbose", true);
 ```
 
+## Exports (Priority A)
+This repository writes a high-throughput JSONL format where 1 line = an array of Works
+(one API response per line). This is intentional for I/O efficiency.
+
+If you need more interoperable formats:
+
+### Standard JSONL (1 record per line)
+Convert the repository JSONL to a standard "1 Work per line" JSONL:
+matlab +inJsonl = "data/openalex_....jsonl"; +outJsonl = "data/openalex_....standard.jsonl"; +n = openalex_write_jsonl(inJsonl, outJsonl); +
+
+### CSV (lossless: nested fields preserved as JSON strings)
+Export Works to a single CSV while preserving all top-level fields.
+Nested/array fields are stored as JSON strings (lossless, but not normalized):
+matlab +inJsonl = "data/openalex_....jsonl"; +outCsv = "data/openalex_....works.csv"; +T = openalex_export_csv(inJsonl, outCsv); +
+
 ## Resume behavior
 If the checkpoint .mat file exists:
 - The fetcher resumes from the last saved cursor.
@@ -185,7 +202,7 @@ run("examples/demo_fetch_example.m")
 This repository focuses strictly on robust data acquisition.
 
 ## License
-MIT
+MIT License. See the LICENSE file for details.
 
 ## A note for contributors
 This repository prioritizes:
