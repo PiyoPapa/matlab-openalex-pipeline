@@ -150,6 +150,28 @@ The example script includes a small pause between requests.
 You are responsible for adjusting request frequency
 according to OpenAlex policies and your own usage.
 
+### Polite pool (recommended)
+If you are doing large-scale requests, OpenAlex recommends providing a contact email
+so your traffic can be associated with the "polite pool".
+
+This repository supports this via the optional `mailto` parameter.
+The example reads it from an environment variable:
+
+**Windows (PowerShell)**
+```powershell
+$env:OPENALEX_MAILTO="you@example.com"
+```
+
+**macOS/Linux (bash/zsh)**
+```bash
+export OPENALEX_MAILTO="you@example.com"
+```
+
+Then run:
+```matlab
+run("examples/demo_fetch_example.m")
+```
+
 ## What this repository does NOT do
 - It does not perform downstream analysis or visualization.
 - It does not normalize or deduplicate records.
