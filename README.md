@@ -162,6 +162,11 @@ inJsonl = "data/openalex_....jsonl";
 outCsv  = "data/openalex_....works.csv";
 T = openalex_export_csv(inJsonl, outCsv);
 ```
+> Note
+> This CSV export is intended as an interchange format, not an analysis-ready table.
+> Variable-length and nested fields are preserved as JSON strings by design.
+> If you need normalized or analysis-specific tables, perform that transformation
+> in a downstream project.
 
 ## Resume behavior
 If the checkpoint .mat file exists:
