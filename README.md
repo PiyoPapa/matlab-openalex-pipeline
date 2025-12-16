@@ -1,15 +1,16 @@
 # matlab-openalex-pipeline
 [![Open in MATLAB Online](https://www.mathworks.com/images/responsive/global/open-in-matlab-online.svg)](https://matlab.mathworks.com/open/github/v1?repo=PiyoPapa/matlab-openalex-pipeline)
 
-A MATLAB-based pipeline for fetching OpenAlex **Works** metadata at scale using cursor-based pagination, with resumable checkpoints and JSONL output.
+A MATLAB-based **data acquisition core** for fetching OpenAlex **Works** metadata at scale
+(cursor-based pagination, resumable checkpoints, JSONL output).
 
-This repository is designed for **large-scale bibliographic data collection**
-(e.g. tens to hundreds of thousands of records) in research and analytics
-workflows where MATLAB is the primary environment.
+Use this when you want **reproducible bulk collection in MATLAB**.
+If you want analysis/visualization, build it **on top of the exported files**.
+
 
 ---
 
-## What this repository provides
+## What this repository provides (and what it doesn't)
 
 - Cursor-based pagination for the OpenAlex Works API  
   (avoids the 10,000-record limit of page-based pagination)
@@ -17,9 +18,13 @@ workflows where MATLAB is the primary environment.
 - High-throughput output via append-only JSONL
 - MATLAB-only implementation (no Python/R dependencies)
 
-This is **not** a wrapper for the full OpenAlex API.
-It intentionally focuses on a **robust, reproducible data acquisition core**.
+**Non-goals (intentional):**
+- No downstream analysis/visualization
+- No record normalization/deduplication
+- Not a full OpenAlex SDK replacement
 
+This repository is intentionally narrow: **fetch Works reliably, resume safely, write fast**.
+Anything else belongs in a separate repo or your own project layer.
 ---
 
 ## Design principles (important)
@@ -80,7 +85,7 @@ matlab-openalex-pipeline/
 run("examples/demo_fetch_example.m")
 ```
 
-This will:
+This will (data acquisition only):
  - Add `src/` to the MATLAB path
  - Fetch OpenAlex Works metadata for a sample query
  - Write outputs to `./data/`

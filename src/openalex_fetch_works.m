@@ -188,18 +188,7 @@ while true
         end
 
         tHttp = tic;
-        % --- first-request visibility (reduce "silent" anxiety) ---
-        if verbose && ~didLogFirstHttp
-            logtag('http', 'request #1 sending...');
-            didLogFirstHttp = true;
-        end
-
-        tHttp = tic;
         data = webread(apiUrl, options);
-        dt = toc(tHttp);
-        if verbose && nRequests == 0
-            logtag('http', 'response #1 received (%.2fs)', dt);
-        end
         dt = toc(tHttp);
         if verbose && nRequests == 0
             logtag('http', 'response #1 received (%.2fs)', dt);
