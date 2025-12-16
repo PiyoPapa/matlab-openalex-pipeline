@@ -7,6 +7,7 @@ function allResults = openalex_fetch_works(query, varargin)
 %   'baseUrl', "https://api.openalex.org/works", ...
 %   'sort', "publication_date:desc", ...
 %   'filter', "language:en", ...
+%   'mailto', "", ...                % Optional: polite pool contact email
 %   'outFile', "openalex_cursor.mat", ...
 %   'saveEvery', 5, ...
 %   'saveEveryRecords', 5000, ...
@@ -27,6 +28,7 @@ addParameter(p, 'maxRecords', inf, @(x) isnumeric(x) && isscalar(x) && x > 0);
 addParameter(p, 'baseUrl', "https://api.openalex.org/works", @(x) ischar(x) || isstring(x));
 addParameter(p, 'sort', "publication_date:desc", @(x) ischar(x) || isstring(x));
 addParameter(p, 'filter', "", @(x) ischar(x) || isstring(x));
+addParameter(p, 'mailto', "", @(x) ischar(x) || isstring(x));
 addParameter(p, 'outFile', "", @(x) ischar(x) || isstring(x));
 addParameter(p, 'timeout', 30, @(x) isnumeric(x) && isscalar(x) && x > 0);
 addParameter(p, 'pauseSec', 0.2, @(x) isnumeric(x) && isscalar(x) && x >= 0);
@@ -46,6 +48,7 @@ maxRecords = opt.maxRecords;
 baseUrl    = string(opt.baseUrl);
 sortStr    = string(opt.sort);
 filterStr  = string(opt.filter);
+mailtoStr  = string(opt.mailto);
 outFile    = string(opt.outFile);
 timeout    = opt.timeout;
 pauseSec   = opt.pauseSec;
@@ -97,6 +100,9 @@ didLogFirstHttp = false;
 if verbose
     logtag('start', 'query="%s" filter="%s" perPage=%d maxRecords=%s', ...
         queryStr, filterStr, perPage, string(maxRecords));
+    if strlength(mailtoStr) > 0
+        logtag('start', 'mailto=%s', mailtoStr);
+    end
     if strlength(outFile) > 0
         logtag('start', 'checkpoint=%s', outFile);
     end
@@ -167,6 +173,11 @@ while true
 
     if strlength(filterStr) > 0
         apiUrl = apiUrl + "&filter=" + urlencode(filterStr);
+    end
+
+    % ---- polite pool (optional) ----
+    if strlength(mailtoStr) > 0
+        apiUrl = apiUrl + "&mailto=" + urlencode(mailtoStr);
     end
 
     try
