@@ -148,12 +148,20 @@ If you need more interoperable formats:
 
 ### Standard JSONL (1 record per line)
 Convert the repository JSONL to a standard "1 Work per line" JSONL:
-matlab +inJsonl = "data/openalex_....jsonl"; +outJsonl = "data/openalex_....standard.jsonl"; +n = openalex_write_jsonl(inJsonl, outJsonl); +
+```matlab
+inJsonl  = "data/openalex_....jsonl";
+outJsonl = "data/openalex_....standard.jsonl";
+n = openalex_write_jsonl(inJsonl, outJsonl);
+```
 
 ### CSV (lossless: nested fields preserved as JSON strings)
 Export Works to a single CSV while preserving all top-level fields.
 Nested/array fields are stored as JSON strings (lossless, but not normalized):
-matlab +inJsonl = "data/openalex_....jsonl"; +outCsv = "data/openalex_....works.csv"; +T = openalex_export_csv(inJsonl, outCsv); +
+```matlab
+inJsonl = "data/openalex_....jsonl";
+outCsv  = "data/openalex_....works.csv";
+T = openalex_export_csv(inJsonl, outCsv);
+```
 
 ## Resume behavior
 If the checkpoint .mat file exists:
