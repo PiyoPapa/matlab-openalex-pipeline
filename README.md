@@ -7,8 +7,8 @@ A MATLAB-based **data acquisition core** for fetching OpenAlex **Works** metadat
 Use this when you want **reproducible bulk collection in MATLAB**.
 If you want analysis/visualization, build it **on top of the exported files**.
 
-
----
+If you want **versioned, analysis-ready CSVs**, use
+[`matlab-openalex-normalize`](https://github.com/PiyoPapa/matlab-openalex-normalize).
 
 ## What this repository provides (and what it doesn't)
 
@@ -125,6 +125,9 @@ This is done for:
 - Easier correlation with request-level metadata
 
 This differs from the common "1 record per line" JSONL convention.
+If your goal is to normalize Works into **fixed-schema CSVs** (e.g., works/authorships/concepts),
+convert to **standard JSONL (1 Work per line)** and then run
+[`matlab-openalex-normalize`](https://github.com/PiyoPapa/matlab-openalex-normalize).
 
 ## Reading JSONL results back into MATLAB
 Use the provided helper:
