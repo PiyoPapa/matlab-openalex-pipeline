@@ -1,7 +1,8 @@
 # matlab-openalex-pipeline
 [![Open in MATLAB Online](https://www.mathworks.com/images/responsive/global/open-in-matlab-online.svg)](https://matlab.mathworks.com/open/github/v1?repo=PiyoPapa/matlab-openalex-pipeline)
 
-MATLAB pipeline for the OpenAlex API: cursor-based bulk harvesting, JSONL handling, and reproducible runs
+This repository provides a MATLAB-based pipeline for the OpenAlex API.
+It enables cursor-based bulk data harvesting, JSONL storage, and reproducible runs without Python.
 
 Use this when you want **reproducible bulk collection in MATLAB**.
 If you want analysis/visualization, build it **on top of the exported files**.
