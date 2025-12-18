@@ -1,8 +1,7 @@
 # matlab-openalex-pipeline
 [![Open in MATLAB Online](https://www.mathworks.com/images/responsive/global/open-in-matlab-online.svg)](https://matlab.mathworks.com/open/github/v1?repo=PiyoPapa/matlab-openalex-pipeline)
 
-A MATLAB-based **data acquisition core** for fetching OpenAlex **Works** metadata at scale
-(cursor-based pagination, resumable checkpoints, JSONL output).
+MATLAB pipeline for the OpenAlex API: cursor-based bulk harvesting, JSONL handling, and reproducible runs
 
 Use this when you want **reproducible bulk collection in MATLAB**.
 If you want analysis/visualization, build it **on top of the exported files**.
