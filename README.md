@@ -92,6 +92,47 @@ This will (data acquisition only):
  - Fetch OpenAlex Works metadata for a sample query
  - Write outputs to `./data/`
 
+* * *
+## FAQ
+
+### Is this an OpenAlex API client / SDK?
+No. This repo is a narrow, streaming-first **OpenAlex API** fetch layer focused on bulk acquisition of **Works**.
+It intentionally does not aim to cover every OpenAlex endpoint or provide a high-level SDK experience.
+
+### Which OpenAlex endpoints are supported?
+v0.x targets the **Works** endpoint for scalable metadata harvesting.
+If you need normalized tables (works/authorships/concepts/sources...), fetch Works first and use the separate normalization layer:
+`matlab-openalex-normalize`.
+
+### Do I need Python or R?
+No. The core fetch/resume/JSONL output is MATLAB-only (uses `webread`).
+
+### Why is the JSONL format “array-per-line”?
+For I/O efficiency: one API response (typically ~200 Works) is written as one JSON array per line.
+This reduces write overhead and makes request-level bookkeeping easier.
+If you need interoperability, convert to standard JSONL (1 Work per line) before downstream tooling.
+
+### How do I convert to standard JSONL (1 Work per line)?
+Use the provided helper:
+
+    inJsonl  = "data/openalex_....jsonl";
+    outJsonl = "data/openalex_....standard.jsonl";
+    n = openalex_write_jsonl(inJsonl, outJsonl);
+
+### How does resume work?
+If the checkpoint `.mat` exists, the fetcher resumes from the last saved cursor.
+To prevent accidental corruption, it performs basic compatibility checks (query/perPage/filters).
+If those inputs differ, it stops with an error.
+
+### How should I handle rate limits / polite pool (mailto)?
+You are responsible for pacing requests according to OpenAlex policies.
+For large-scale requests, provide a contact email via `mailto` (polite pool). This repo supports an optional `mailto`
+parameter and the example reads `OPENALEX_MAILTO` from the environment.
+
+### Can I fetch authors/sources/institutions directly?
+Not in the core scope right now. The intended flow is:
+fetch Works reliably → export/convert → normalize/analyze in a separate layer or your own project.
+
 ## Output files
 ### Checkpoint file (`.mat`)
 
