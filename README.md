@@ -258,6 +258,14 @@ run("examples/demo_fetch_example.m")
 
 This repository focuses strictly on robust data acquisition.
 
+## Disclaimer
+The author is an employee of MathWorks Japan.
+This repository is a personal experimental project developed independently
+and is not part of any MathWorks product, service, or official content.
+
+MathWorks does not review, endorse, support, or maintain this repository.
+All opinions and implementations are solely those of the author.
+
 ## License
 MIT License. See the LICENSE file for details.
 
@@ -267,4 +275,8 @@ This repository prioritizes:
 - reproducibility over convenience
 - explicit configuration over magic defaults
 
-If you plan to extend it, please preserve these principles.
+## Contact
+This project is maintained on a best-effort basis and does not provide official support.
+
+For bug reports or feature requests, please use GitHub Issues.
+If you plan to extend it, please preserve the principles stated above.
