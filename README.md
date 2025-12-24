@@ -1,61 +1,69 @@
 # matlab-openalex-pipeline
 [![Open in MATLAB Online](https://www.mathworks.com/images/responsive/global/open-in-matlab-online.svg)](https://matlab.mathworks.com/open/github/v1?repo=PiyoPapa/matlab-openalex-pipeline)
 
-This repository provides a MATLAB-based pipeline for the OpenAlex API (Works endpoint).
-It enables cursor-based bulk data harvesting, JSONL storage, and reproducible runs without Python.
+This repository provides a MATLAB-based acquisition layer for the OpenAlex Works API.
+It focuses on reproducible, cursor-based bulk data collection and explicit file output.
+Downstream normalization and analysis are intentionally handled in separate repositories.
+ 
+> **Version note**
+>
+> The behavior described below reflects the implementation as of the current `v0.x` line.
+> Minor releases may extend examples or options without changing the core design intent.
 
-Use this when you want **reproducible bulk collection in MATLAB**.
-If you want analysis/visualization, build it **on top of the exported files**.
+> **Compatibility note**
+>
+> This repo writes a high-throughput JSONL format (**array-per-line JSONL**: 1 line = 1 API response array).
+> If you want to run `matlab-openalex-normalize`, convert to **standard JSONL** (1 Work per line) first using
+> `openalex_write_jsonl` (provided in this repository).
 
-If you want **versioned, analysis-ready CSVs**, use
-[`matlab-openalex-normalize`](https://github.com/PiyoPapa/matlab-openalex-normalize).
+Downstream / related projects:
+- **Normalization (fixed-schema CSVs):**
+  [`matlab-openalex-normalize`](https://github.com/PiyoPapa/matlab-openalex-normalize)
+- **Topic mapping / semantic exploration (Text Analytics / DL):**
+  [`matlab-openalex-analyze`](https://github.com/PiyoPapa/matlab-openalex-analyze)
+- **Citation graphs / reference edges (advanced users):**
+  `matlab-openalex-edges` (separate repository; advanced / not part of this repo)
+
+## Overview
+- **Who this is for:**  
+  Professionals whose primary responsibilities lie outside text analytics, yet who need
+  reproducible, time-bounded exploratory access to research metadata for decision-making.
+- **What problem this addresses:**  
+  Reliable bulk acquisition of OpenAlex Works data in environments where Python/R tooling
+  is undesirable or unavailable.
+- **What layer this repository represents:**  
+  The acquisition layer in a multi-stage OpenAlex–MATLAB workflow.
 
 ## What this repository provides (and what it doesn't)
 
-- Cursor-based pagination for the OpenAlex Works API  
-  (avoids the 10,000-record limit of page-based pagination)
-- Safe resume mechanism using a lightweight `.mat` checkpoint
-- High-throughput output via append-only JSONL
-- MATLAB-only implementation (no Python/R dependencies)
-
-**Non-goals (intentional):**
-- No downstream analysis/visualization
-- No record normalization/deduplication
-- Not a full OpenAlex SDK replacement
-
-This repository is intentionally narrow: **fetch Works reliably, resume safely, write fast**.
-Anything else belongs in a separate repo or your own project layer.
+- **Provides:**
+  - Cursor-based pagination for the OpenAlex Works API  
+    (avoids the 10,000-record limit of page-based pagination)
+  - Safe resume mechanism using a lightweight `.mat` checkpoint
+  - Append-only JSONL output for reproducible runs
+  - MATLAB-only implementation (no Python/R dependencies)
+- **Does NOT provide:**
+  - Downstream analysis or visualization
+  - Record normalization or deduplication
+  - A general-purpose OpenAlex SDK
 ---
 
-## Design principles (important)
+## Repository position in the OpenAlex–MATLAB workflow
+This repository is part of a three-stage workflow for analyzing OpenAlex data in MATLAB.
+ 
+1. **Acquisition** — fetch OpenAlex Works reliably (**this repository**)
+2. **Normalization** — fixed-schema, versioned CSVs  
+   → [`matlab-openalex-normalize`](https://github.com/PiyoPapa/matlab-openalex-normalize)
+3. **Analysis / topic mapping** — clustering, diagnostics, semantic maps  
+   → [`matlab-openalex-analyze`](https://github.com/PiyoPapa/matlab-openalex-analyze)
+4. **Advanced analysis** — citation graphs, large-scale networks (separate repositories)
 
-This repository intentionally follows these rules:
-
-1. **No implicit project structure assumptions**
-   - Library functions do not assume where the repository is located.
-   - Output locations must be specified by the caller.
-
-2. **Separation of concerns**
-   - `src/` contains reusable library functions.
-   - `examples/` contains runnable demo scripts.
-   - Generated data is written to `data/` and never committed.
-
-3. **I/O efficiency over convenience**
-   - Results are written as JSONL with one line per API request
-     (each line is a JSON array, not a single record).
-   - In-memory accumulation is optional and disabled by default.
-
+## Scope and design principles
+This repository is intentionally narrow in scope.
+It prioritizes explicit data handling, reproducibility, and diagnostic clarity over
+automation or convenience. Advanced analytics, optimization, and production deployment
+are explicitly out of scope.
 These choices are deliberate and may differ from typical "quick scripts".
-
----
-
-## Requirements
-
-- MATLAB (recent versions recommended)
-- Internet access
-
-No additional toolbox is required under typical conditions
-(`webread` is used for HTTP requests).
 
 ---
 
@@ -75,7 +83,11 @@ No additional toolbox is required under typical conditions
  └─ README.md
 ```
 
-## Quick start
+## Input / Output
+- Input: OpenAlex Works API queries and optional resume checkpoints
+- Output: Append-only JSONL files and lightweight .mat cursor checkpoints
+
+## Demos / Examples
 > **MATLAB Online users**  
 > This repository can be opened directly in MATLAB Online using the button above.  
 > Output files will be saved within the MATLAB Online session and can be downloaded manually.
@@ -92,171 +104,18 @@ This will (data acquisition only):
  - Fetch OpenAlex Works metadata for a sample query
  - Write outputs to `./data/`
 
-* * *
-## FAQ
+## Intended use
+This repository is intended for short-lived, reproducible acquisition runs
+where explicit control over queries, cursors, and outputs is required.
+It is designed to support exploratory or decision-oriented analysis workflows
+that build on exported files in downstream projects, rather than to function
+as a persistent data platform or general-purpose API client.
 
-### Is this an OpenAlex API client / SDK?
-No. This repo is a narrow, streaming-first **OpenAlex API** fetch layer focused on bulk acquisition of **Works**.
-It intentionally does not aim to cover every OpenAlex endpoint or provide a high-level SDK experience.
-
-### Which OpenAlex endpoints are supported?
-v0.x targets the **Works** endpoint for scalable metadata harvesting.
-If you need normalized tables (works/authorships/concepts/sources...), fetch Works first and use the separate normalization layer:
-`matlab-openalex-normalize`.
-
-### Do I need Python or R?
-No. The core fetch/resume/JSONL output is MATLAB-only (uses `webread`).
-
-### Why is the JSONL format “array-per-line”?
-For I/O efficiency: one API response (typically ~200 Works) is written as one JSON array per line.
-This reduces write overhead and makes request-level bookkeeping easier.
-If you need interoperability, convert to standard JSONL (1 Work per line) before downstream tooling.
-
-### How do I convert to standard JSONL (1 Work per line)?
-Use the provided helper:
-
-    inJsonl  = "data/openalex_....jsonl";
-    outJsonl = "data/openalex_....standard.jsonl";
-    n = openalex_write_jsonl(inJsonl, outJsonl);
-
-### How does resume work?
-If the checkpoint `.mat` exists, the fetcher resumes from the last saved cursor.
-To prevent accidental corruption, it performs basic compatibility checks (query/perPage/filters).
-If those inputs differ, it stops with an error.
-
-### How should I handle rate limits / polite pool (mailto)?
-You are responsible for pacing requests according to OpenAlex policies.
-For large-scale requests, provide a contact email via `mailto` (polite pool). This repo supports an optional `mailto`
-parameter and the example reads `OPENALEX_MAILTO` from the environment.
-
-### Can I fetch authors/sources/institutions directly?
-Not in the core scope right now. The intended flow is:
-fetch Works reliably → export/convert → normalize/analyze in a separate layer or your own project.
-
-## Output files
-### Checkpoint file (`.mat`)
-
-Example:
-```text
-data/openalex_MATLAB_cursor_en_100000.mat
-```
-
-This file contains:
-- Cursor state
-- Request counters
-- Minimal metadata required for resuming
-
-It is intentionally small and frequently overwritten.
-
-### Results file (.jsonl)
-Example:
-```text
-data/openalex_MATLAB_cursor_en_100000.jsonl
-```
-This file is append-only and can grow large.
-
-### JSONL format (read carefully)
-This repository uses a non-standard but intentional JSONL format:
-- 1 line = JSON array of OpenAlex Works objects
-- Typically ~200 records per line (per API request)
-
-This is done for:
-- Faster writes
-- Lower file I/O overhead
-- Easier correlation with request-level metadata
-
-This differs from the common "1 record per line" JSONL convention.
-If your goal is to normalize Works into **fixed-schema CSVs** (e.g., works/authorships/concepts),
-convert to **standard JSONL (1 Work per line)** and then run
-[`matlab-openalex-normalize`](https://github.com/PiyoPapa/matlab-openalex-normalize).
-
-## Reading JSONL results back into MATLAB
-Use the provided helper:
-```matlab
-results = openalex_read_jsonl("data/openalex_....jsonl");
-```
-
-Options:
-```matlab
-results = openalex_read_jsonl( ...
-    "data/openalex_....jsonl", ...
-    "maxRecords", 50000, ...
-    "verbose", true);
-```
-
-## Exports (Priority A)
-This repository writes a high-throughput JSONL format where 1 line = an array of Works
-(one API response per line). This is intentional for I/O efficiency.
-
-If you need more interoperable formats:
-
-### Standard JSONL (1 record per line)
-Convert the repository JSONL to a standard "1 Work per line" JSONL:
-```matlab
-inJsonl  = "data/openalex_....jsonl";
-outJsonl = "data/openalex_....standard.jsonl";
-n = openalex_write_jsonl(inJsonl, outJsonl);
-```
-
-### CSV (lossless: nested fields preserved as JSON strings)
-Export Works to a single CSV while preserving all top-level fields.
-Nested/array fields are stored as JSON strings (lossless, but not normalized):
-```matlab
-inJsonl = "data/openalex_....jsonl";
-outCsv  = "data/openalex_....works.csv";
-T = openalex_export_csv(inJsonl, outCsv);
-```
-> Note
-> This CSV export is intended as an interchange format, not an analysis-ready table.
-> Variable-length and nested fields are preserved as JSON strings by design.
-> If you need normalized or analysis-specific tables, perform that transformation
-> in a downstream project.
-
-## Resume behavior
-If the checkpoint .mat file exists:
-- The fetcher resumes from the last saved cursor.
-- Basic compatibility checks are performed:
-  - query string
-  - perPage
-  - filter conditions
-
-If these do not match, execution stops with an error
-to prevent accidental data corruption.
-
-## Rate limiting and responsibility
-OpenAlex imposes rate limits.
-The example script includes a small pause between requests.
-You are responsible for adjusting request frequency
-according to OpenAlex policies and your own usage.
-
-### Polite pool (recommended)
-If you are doing large-scale requests, OpenAlex recommends providing a contact email
-so your traffic can be associated with the "polite pool".
-
-This repository supports this via the optional `mailto` parameter.
-The example reads it from an environment variable:
-
-**Windows (PowerShell)**
-```powershell
-$env:OPENALEX_MAILTO="you@example.com"
-```
-
-**macOS/Linux (bash/zsh)**
-```bash
-export OPENALEX_MAILTO="you@example.com"
-```
-
-Then run:
-```matlab
-run("examples/demo_fetch_example.m")
-```
-
-## What this repository does NOT do
-- It does not perform downstream analysis or visualization.
-- It does not normalize or deduplicate records.
-- It does not aim to replace official OpenAlex SDKs.
-
-This repository focuses strictly on robust data acquisition.
+## Relationship to other repositories
+This repository deliberately handles only the acquisition of OpenAlex Works data.
+Schema stabilization, transformation into analysis-ready tables, and any form of
+semantic analysis or visualization are expected to occur in separate repositories
+or project layers, according to the OpenAlex–MATLAB workflow described above.
 
 ## Disclaimer
 The author is an employee of MathWorks Japan.
