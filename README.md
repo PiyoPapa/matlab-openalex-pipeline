@@ -21,17 +21,18 @@ Downstream / related projects:
  
 ## Overview
 
-This repository provides:
-- Cursor-based pagination for the OpenAlex Works API  
-  (avoids the 10,000-record limit of page-based pagination)
-- Safe resume mechanism using a lightweight `.mat` checkpoint
-- Append-only JSONL output for reproducible acquisition runs
-- MATLAB-only implementation (no Python/R dependencies)
+This repository provides a **MATLAB-only acquisition layer** for collecting
+OpenAlex Works metadata in a **reproducible, time-bounded manner**.
 
-This repository does NOT:
-- Perform normalization, deduplication, or analysis
-- Provide visualization or reporting
-- Act as a general-purpose OpenAlex SDK
+**What this repository provides**
+- Cursor-based pagination for the OpenAlex Works API
+- Append-only JSONL output with resumable checkpoints
+- Explicit control over queries, cursors, and output files
+
+**What this repository does NOT provide**
+- Normalization, deduplication, or analysis
+- Visualization or reporting
+- A general-purpose OpenAlex SDK
 
 ## Repository position in the OpenAlex–MATLAB workflow
 This repository is part of a three-stage workflow:
@@ -39,7 +40,7 @@ This repository is part of a three-stage workflow:
 1. **Acquisition** — fetch OpenAlex Works reliably (**this repository**)
 2. **Normalization** — fixed-schema, versioned CSVs  
    → [`matlab-openalex-normalize`](https://github.com/PiyoPapa/matlab-openalex-normalize)
-3. **Analysis / topic mapping** — clustering, diagnostics, semantic maps  
+3. **Analysis / diagnostics** — exploratory inspection and topic mapping  
    → [`matlab-openalex-analyze`](https://github.com/PiyoPapa/matlab-openalex-analyze)
 
 ## Who this repository is for / not for
@@ -97,13 +98,6 @@ This will (data acquisition only):
  - Add `src/` to the MATLAB path
  - Fetch OpenAlex Works metadata for a sample query
  - Write outputs to `./data/`
-
-## Intended use
-This repository is intended for short-lived, reproducible acquisition runs
-where explicit control over queries, cursors, and outputs is required.
-It is designed to support exploratory or decision-oriented analysis workflows
-that build on exported files in downstream projects, rather than to function
-as a persistent data platform or general-purpose API client.
 
 ## When to stop here / when to move on
 
