@@ -1,14 +1,11 @@
 # matlab-openalex-pipeline
 [![Open in MATLAB Online](https://www.mathworks.com/images/responsive/global/open-in-matlab-online.svg)](https://matlab.mathworks.com/open/github/v1?repo=PiyoPapa/matlab-openalex-pipeline)
 
-This repository provides a MATLAB-based acquisition layer for the OpenAlex Works API.
-It focuses on reproducible, cursor-based bulk data collection and explicit file output.
-Downstream normalization and analysis are intentionally handled in separate repositories.
- 
-> **Version note**
->
-> The behavior described below reflects the implementation as of the current `v0.x` line.
-> Minor releases may extend examples or options without changing the core design intent.
+This repository is a **MATLAB-only acquisition layer** for the OpenAlex Works API.
+It is designed for **reproducible, time-bounded bulk data collection** — not for analysis or visualization.
+
+**You should stop here if** your goal is to fetch and archive OpenAlex Works metadata.
+**You should move on** only if you need normalized tables or exploratory analysis.
 
 > **Compatibility note**
 >
@@ -17,53 +14,50 @@ Downstream normalization and analysis are intentionally handled in separate repo
 > `openalex_write_jsonl` (provided in this repository).
 
 Downstream / related projects:
-- **Normalization (fixed-schema CSVs):**
+- **Normalization (fixed-schema, versioned CSVs):**
   [`matlab-openalex-normalize`](https://github.com/PiyoPapa/matlab-openalex-normalize)
-- **Topic mapping / semantic exploration (Text Analytics / DL):**
+- **Analysis / diagnostics (exploratory topic mapping, semantic inspection):**
   [`matlab-openalex-analyze`](https://github.com/PiyoPapa/matlab-openalex-analyze)
-- **Citation graphs / reference edges (advanced users):**
-  `matlab-openalex-edges` (separate repository; advanced / not part of this repo)
-
+ 
 ## Overview
-- **Who this is for:**  
-  Professionals whose primary responsibilities lie outside text analytics, yet who need
-  reproducible, time-bounded exploratory access to research metadata for decision-making.
-- **What problem this addresses:**  
-  Reliable bulk acquisition of OpenAlex Works data in environments where Python/R tooling
-  is undesirable or unavailable.
-- **What layer this repository represents:**  
-  The acquisition layer in a multi-stage OpenAlex–MATLAB workflow.
 
-## What this repository provides (and what it doesn't)
+This repository provides:
+- Cursor-based pagination for the OpenAlex Works API  
+  (avoids the 10,000-record limit of page-based pagination)
+- Safe resume mechanism using a lightweight `.mat` checkpoint
+- Append-only JSONL output for reproducible acquisition runs
+- MATLAB-only implementation (no Python/R dependencies)
 
-- **Provides:**
-  - Cursor-based pagination for the OpenAlex Works API  
-    (avoids the 10,000-record limit of page-based pagination)
-  - Safe resume mechanism using a lightweight `.mat` checkpoint
-  - Append-only JSONL output for reproducible runs
-  - MATLAB-only implementation (no Python/R dependencies)
-- **Does NOT provide:**
-  - Downstream analysis or visualization
-  - Record normalization or deduplication
-  - A general-purpose OpenAlex SDK
----
+This repository does NOT:
+- Perform normalization, deduplication, or analysis
+- Provide visualization or reporting
+- Act as a general-purpose OpenAlex SDK
 
 ## Repository position in the OpenAlex–MATLAB workflow
-This repository is part of a three-stage workflow for analyzing OpenAlex data in MATLAB.
- 
+This repository is part of a three-stage workflow:
+
 1. **Acquisition** — fetch OpenAlex Works reliably (**this repository**)
 2. **Normalization** — fixed-schema, versioned CSVs  
    → [`matlab-openalex-normalize`](https://github.com/PiyoPapa/matlab-openalex-normalize)
 3. **Analysis / topic mapping** — clustering, diagnostics, semantic maps  
    → [`matlab-openalex-analyze`](https://github.com/PiyoPapa/matlab-openalex-analyze)
-4. **Advanced analysis** — citation graphs, large-scale networks (separate repositories)
 
-## Scope and design principles
-This repository is intentionally narrow in scope.
-It prioritizes explicit data handling, reproducibility, and diagnostic clarity over
-automation or convenience. Advanced analytics, optimization, and production deployment
-are explicitly out of scope.
-These choices are deliberate and may differ from typical "quick scripts".
+## Who this repository is for / not for
+
+This repository is for:
+- Users who need **explicit, reproducible acquisition** of OpenAlex Works metadata in MATLAB
+- Users who want **full control over queries, cursors, and output files** without Python/R
+
+This repository is NOT for:
+- Users looking for an analysis or visualization tool
+- Users expecting a fully abstracted OpenAlex SDK
+
+## Scope and non-goals
+
+This repository intentionally limits its scope to **data acquisition only**.
+Advanced analytics, optimization, visualization, and production deployment are explicitly out of scope.
+
+The design favors **transparency and reproducibility** over convenience or abstraction. 
 
 ---
 
@@ -111,11 +105,17 @@ It is designed to support exploratory or decision-oriented analysis workflows
 that build on exported files in downstream projects, rather than to function
 as a persistent data platform or general-purpose API client.
 
-## Relationship to other repositories
-This repository deliberately handles only the acquisition of OpenAlex Works data.
-Schema stabilization, transformation into analysis-ready tables, and any form of
-semantic analysis or visualization are expected to occur in separate repositories
-or project layers, according to the OpenAlex–MATLAB workflow described above.
+## When to stop here / when to move on
+
+Stop here if:
+- Your goal is **acquisition and archival** of OpenAlex Works data
+- You already have the JSONL output you need
+
+Move on only if:
+- You need fixed-schema, versioned CSVs  
+  → [`matlab-openalex-normalize`](https://github.com/PiyoPapa/matlab-openalex-normalize)
+- You want exploratory topic mapping or semantic inspection  
+  → [`matlab-openalex-analyze`](https://github.com/PiyoPapa/matlab-openalex-analyze)
 
 ## Disclaimer
 The author is an employee of MathWorks Japan.
@@ -128,14 +128,6 @@ All opinions and implementations are solely those of the author.
 ## License
 MIT License. See the LICENSE file for details.
 
-## A note for contributors
-This repository prioritizes:
-- clarity over abstraction
-- reproducibility over convenience
-- explicit configuration over magic defaults
-
-## Contact
+## Notes
 This project is maintained on a best-effort basis and does not provide official support.
-
-For bug reports or feature requests, please use GitHub Issues.
-If you plan to extend it, please preserve the principles stated above.
+For bug reports, please use GitHub Issues.
