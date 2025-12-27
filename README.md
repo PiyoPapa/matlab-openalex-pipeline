@@ -1,4 +1,6 @@
 # matlab-openalex-pipeline
+**Language:** English | [日本語](README_ja.md)
+
 [![Open in MATLAB Online](https://www.mathworks.com/images/responsive/global/open-in-matlab-online.svg)](https://matlab.mathworks.com/open/github/v1?repo=PiyoPapa/matlab-openalex-pipeline)
 
 This repository is a **MATLAB-only acquisition layer** for the OpenAlex Works API.
