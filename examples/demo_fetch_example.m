@@ -1,45 +1,24 @@
-% demo_fetch_example.m
-% OpenAlex cursor fetch demo (writes outputs to ./data)
+%% Step 1. Setting up parameter
+cfg = oa_bootstrap();
+query      = "matlab";
+language   = "en";
 
-close all; clc
+fromDate = "2024-01-01";
+toDate   = "2024-01-31";
 
-thisFile = mfilename("fullpath");
-repoRoot = fileparts(fileparts(thisFile)); % examples/ -> repo
-addpath(fullfile(repoRoot, "src"));
+type   = "article";
+sort   = "publication_date:desc";
+select = ["id","title","publication_date","type"];
+mailto = "";
 
-outDir = fullfile(repoRoot, "data");
-if ~isfolder(outDir), mkdir(outDir); end
+% NOTE: peek_count is count-only; 'select' is applied only in fetch.
+info = oa_peek_count(cfg, query, language, "publication", fromDate, toDate, type, sort, mailto);
+disp(info.count)
+%% Step 2. Run
+maxRecords = 8500;
+perPage    = 200;
+pauseSec   = 0.2;
 
-maxRecords = 10000;
-tag = "_" + string(maxRecords);
-query = "MATLAB";
-
-cursorMat = fullfile(outDir, "openalex_MATLAB_cursor_en" + tag + ".mat");
-jsonlFile = fullfile(outDir, "openalex_MATLAB_cursor_en" + tag + ".jsonl");
-
-% Optional: polite pool contact (recommended)
-% Set environment variable in your shell:
-%   Windows (PowerShell):  $env:OPENALEX_MAILTO="you@example.com"
-%   macOS/Linux (bash/zsh): export OPENALEX_MAILTO="you@example.com"
-mailto = string(getenv("OPENALEX_MAILTO"));
-
-openalex_fetch_works(query, ...
-  'perPage', 200, ...
-  'maxRecords', maxRecords, ...
-  'filter', "language:en", ...
-  'mailto', mailto, ...
-  'outFile', cursorMat, ...
-  'jsonlFile', jsonlFile, ...
-  'keepInMemory', false, ...
-  'saveEvery', 25, ...
-  'saveEveryRecords', 1000, ...
-  'progressEveryRecords', 1000, ...
-  'pauseSec', 0.2, ...
-  'verbose', true);
-
-% ---- Exports ----
-stdJsonl = fullfile(outDir, "openalex_MATLAB_cursor_en" + tag + ".standard.jsonl");
-openalex_write_jsonl(jsonlFile, stdJsonl, 'verbose', true);
-
-csvFile = fullfile(outDir, "openalex_MATLAB_cursor_en" + tag + ".works.csv");
-openalex_export_csv(jsonlFile, csvFile, 'verbose', true);
+out = oa_run_openalex(cfg, ...
+  query, language, "publication", fromDate, toDate, type, ...
+  sort, select, mailto, maxRecords, perPage, pauseSec);

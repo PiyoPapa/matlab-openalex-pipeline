@@ -7,6 +7,7 @@ function allResults = openalex_fetch_works(query, varargin)
 %   'baseUrl', "https://api.openalex.org/works", ...
 %   'sort', "publication_date:desc", ...
 %   'filter', "language:en", ...
+%   'select', "", ...
 %   'mailto', "", ...                % Optional: polite pool contact email
 %   'outFile', "openalex_cursor.mat", ...
 %   'saveEvery', 5, ...
@@ -27,6 +28,7 @@ addParameter(p, 'perPage', 200, @(x) isnumeric(x) && isscalar(x) && x > 0);
 addParameter(p, 'maxRecords', inf, @(x) isnumeric(x) && isscalar(x) && x > 0);
 addParameter(p, 'baseUrl', "https://api.openalex.org/works", @(x) ischar(x) || isstring(x));
 addParameter(p, 'sort', "publication_date:desc", @(x) ischar(x) || isstring(x));
+addParameter(p, 'select', "", @(x) ischar(x) || isstring(x) || iscellstr(x));
 addParameter(p, 'filter', "", @(x) ischar(x) || isstring(x));
 addParameter(p, 'mailto', "", @(x) ischar(x) || isstring(x));
 addParameter(p, 'outFile', "", @(x) ischar(x) || isstring(x));
@@ -47,6 +49,7 @@ perPage    = min(opt.perPage, 200);  % OpenAlex per-page hard limit
 maxRecords = opt.maxRecords;
 baseUrl    = string(opt.baseUrl);
 sortStr    = string(opt.sort);
+selectOpt  = opt.select;
 filterStr  = string(opt.filter);
 mailtoStr  = string(opt.mailto);
 outFile    = string(opt.outFile);
@@ -58,6 +61,28 @@ saveEveryRecords = opt.saveEveryRecords;
 progressEveryRecords = opt.progressEveryRecords;
 jsonlFile  = string(opt.jsonlFile);
 keepInMemory = opt.keepInMemory;
+
+% -------------------------------
+% Normalize select (optional)
+% -------------------------------
+% Accept:
+% - "" (skip)
+% - "id,title,..." (string/char)
+% - ["id","title",...] (string vector)
+% - {'id','title',...} (cellstr)
+selectStr = "";
+if iscell(selectOpt)
+    selectVec = string(selectOpt);
+elseif isstring(selectOpt) && numel(selectOpt) > 1
+    selectVec = string(selectOpt(:));
+else
+    selectVec = string(selectOpt);
+end
+if numel(selectVec) > 1
+    selectStr = strjoin(selectVec, ",");
+else
+    selectStr = string(selectVec);
+end
 
 % -------------------------------
 % Output handling (no repository structure assumptions)
@@ -100,6 +125,9 @@ didLogFirstHttp = false;
 if verbose
     logtag('start', 'query="%s" filter="%s" perPage=%d maxRecords=%s', ...
         queryStr, filterStr, perPage, string(maxRecords));
+    if strlength(selectStr) > 0
+        logtag('start', 'select=%s', selectStr);
+    end
     if strlength(mailtoStr) > 0
         logtag('start', 'mailto=%s', mailtoStr);
     end
@@ -125,6 +153,12 @@ if strlength(outFile) > 0 && isfile(outFile)
     end
     if isfield(S, "filterStr") && filterStr ~= S.filterStr
         error('Saved file filter (%s) and current filter (%s) do not match.', S.filterStr, filterStr);
+    end
+    if isfield(S, "sortStr") && sortStr ~= string(S.sortStr)
+        error('Saved file sort (%s) and current sort (%s) do not match.', string(S.sortStr), sortStr);
+    end
+    if isfield(S, "selectStr") && selectStr ~= string(S.selectStr)
+        error('Saved file select (%s) and current select (%s) do not match.', string(S.selectStr), selectStr);
     end
 
     if keepInMemory && isfield(S, "allResults"), allResults = S.allResults; end
@@ -175,6 +209,11 @@ while true
         apiUrl = apiUrl + "&filter=" + urlencode(filterStr);
     end
 
+    % ---- select (optional) ----
+    if strlength(selectStr) > 0
+        apiUrl = apiUrl + "&select=" + urlencode(selectStr);
+    end
+
     % ---- polite pool (optional) ----
     if strlength(mailtoStr) > 0
         apiUrl = apiUrl + "&mailto=" + urlencode(mailtoStr);
@@ -217,8 +256,23 @@ while true
     if ~isfield(data, "results") || isempty(data.results)
         break;
     end
-    %  ---- Count retrieved records ----
-    got = numel(data.results);
+    % -------------------------------
+    % Enforce maxRecords within-page
+    % (critical when maxRecords < perPage)
+    % -------------------------------
+    pageResults = data.results;
+    if isfinite(maxRecords)
+        remaining = maxRecords - nRecords;
+        if remaining <= 0
+            break;
+        end
+        if numel(pageResults) > remaining
+            pageResults = pageResults(1:remaining);
+        end
+    end
+
+    %  ---- Count retrieved records (after trimming) ----
+    got = numel(pageResults);
     nRecords = nRecords + got;
 
     % ---- progress log (psychological safety) ----
@@ -239,13 +293,13 @@ while true
 
     % ---- Optional in-memory accumulation ----
     if keepInMemory
-        allResults = [allResults; data.results(:)];
+        allResults = [allResults; pageResults(:)];
     end
 
     % ---- Append results to JSONL ----
     % One line per request (JSON array) for I/O efficiency
     if fidJsonl > 0
-        fprintf(fidJsonl, '%s\n', jsonencode(data.results));
+        fprintf(fidJsonl, '%s\n', jsonencode(pageResults));
     end
 
     doSave = false;
@@ -261,10 +315,10 @@ while true
         lastSavedRecords = nRecords;
         if keepInMemory
             save(outFile, "allResults","metaLast","nextCursor","nRequests","nRecords","lastSavedRecords", ...
-                "queryStr","perPage","sortStr","filterStr","timestamp","maxRecords","keepInMemory","-v7.3");
+                "queryStr","perPage","sortStr","filterStr","selectStr","timestamp","maxRecords","keepInMemory","-v7.3");
         else
             save(outFile, "metaLast","nextCursor","nRequests","nRecords","lastSavedRecords", ...
-                "queryStr","perPage","sortStr","filterStr","timestamp","maxRecords","keepInMemory","-v7");
+                "queryStr","perPage","sortStr","filterStr","selectStr","timestamp","maxRecords","keepInMemory","-v7");
         end
         if verbose
             logtag('save', 'records=%d -> %s', nRecords, outFile);
@@ -281,10 +335,10 @@ if strlength(outFile) > 0
     lastSavedRecords = nRecords;
     if keepInMemory
         save(outFile, "allResults","metaLast","nextCursor","nRequests","nRecords","lastSavedRecords", ...
-            "queryStr","perPage","sortStr","filterStr","timestamp","maxRecords","keepInMemory","-v7.3");
+            "queryStr","perPage","sortStr","filterStr","selectStr","timestamp","maxRecords","keepInMemory","-v7.3");
     else
         save(outFile, "metaLast","nextCursor","nRequests","nRecords","lastSavedRecords", ...
-            "queryStr","perPage","sortStr","filterStr","timestamp","maxRecords","keepInMemory","-v7");
+            "queryStr","perPage","sortStr","filterStr","selectStr","timestamp","maxRecords","keepInMemory","-v7");
     end
     if verbose
         logtag('save', 'final records=%d -> %s', nRecords, outFile);
