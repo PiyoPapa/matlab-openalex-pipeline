@@ -67,17 +67,20 @@ The design favors **transparency and reproducibility** over convenience or abstr
 ## Repository layout
 
 ```text
- matlab-openalex-pipeline/
- ├─ src/                # Library functions
- │  ├─ openalex_export_csv.m
- │  ├─ openalex_fetch_works.m
- │  ├─ openalex_read_jsonl.m
- │  └─ openalex_write_jsonl.m
- ├─ examples/           # Runnable demos
- │  └─ demo_fetch_example.m
- ├─ data/               # Local outputs (gitignored)
- ├─ docs/               # Optional documentation
- └─ README.md
+  matlab-openalex-pipeline/
+  ├─ src/                # Library functions
+  │  ├─ oa_bootstrap.m
+  │  ├─ oa_peek_count.m
+  │  ├─ oa_run_openalex.m
+  │  ├─ openalex_export_csv.m
+  │  ├─ openalex_fetch_works.m
+  │  ├─ openalex_read_jsonl.m
+  │  └─ openalex_write_jsonl.m
+  ├─ examples/           # Runnable demos
+  │  └─ demo_fetch_example.m
+  ├─ data/               # Local outputs (gitignored)
+  ├─ docs/               # Optional documentation
+  └─ README.md
 ```
 
 ## Input / Output

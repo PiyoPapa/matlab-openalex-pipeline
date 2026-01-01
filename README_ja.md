@@ -72,17 +72,20 @@
 ## Repository layout
 
 ```text
- matlab-openalex-pipeline/
- ├─ src/                # ライブラリ関数
- │  ├─ openalex_export_csv.m
- │  ├─ openalex_fetch_works.m
- │  ├─ openalex_read_jsonl.m
- │  └─ openalex_write_jsonl.m
- ├─ examples/           # 実行可能なデモ
- │  └─ demo_fetch_example.m
- ├─ data/               # ローカル出力（git 管理外）
- ├─ docs/               # 任意のドキュメント
- └─ README.md
+  matlab-openalex-pipeline/
+  ├─ src/                # Library functions
+  │  ├─ oa_bootstrap.m
+  │  ├─ oa_peek_count.m
+  │  ├─ oa_run_openalex.m
+  │  ├─ openalex_export_csv.m
+  │  ├─ openalex_fetch_works.m
+  │  ├─ openalex_read_jsonl.m
+  │  └─ openalex_write_jsonl.m
+  ├─ examples/           # Runnable demos
+  │  └─ demo_fetch_example.m
+  ├─ data/               # Local outputs (gitignored)
+  ├─ docs/               # Optional documentation
+  └─ README.md
 ```
 
 ## Input / Output
