@@ -89,6 +89,14 @@
 - Input: OpenAlex Works API クエリおよび任意の再開用チェックポイント
 - Output: 追記専用 JSONL ファイルおよび軽量な .mat カーソルチェックポイント
 
+## Optional: クエリ制御（そのまま渡す）
+フロントの `oa_run_openalex` は、OpenAlex 形式の文字列を受け取り、fetcher にそのまま渡します。
+
+- `type`: `"article"` または `"type:article"`（どちらも可）
+- `sort`: OpenAlex の sort 文字列（例：`"publication_date:desc"`）
+- `select`（fetch のみ）: 返却フィールドを絞るための指定。`[]` または `""` で `select` を省略し、
+  API のデフォルトレスポンスを取得します。`oa_peek_count` は **count-only** のため `select` は渡さないでください。
+
 ## Demos / Examples
 > **MATLAB Online ユーザー向け**
 >  

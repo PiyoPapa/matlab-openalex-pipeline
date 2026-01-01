@@ -84,6 +84,14 @@ The design favors **transparency and reproducibility** over convenience or abstr
 - Input: OpenAlex Works API queries and optional resume checkpoints
 - Output: Append-only JSONL files and lightweight .mat cursor checkpoints
 
+## Optional query controls (passed through)
+The front runner `oa_run_openalex` accepts OpenAlex-style strings and passes them through to the fetcher.
+
+- `type`: either `"article"` or `"type:article"` (both are accepted)
+- `sort`: OpenAlex sort string (e.g., `"publication_date:desc"`)
+- `select` (fetch-only): list of fields to return. Use `[]` or `""` to skip `select`
+  (i.e., request the API default response). `oa_peek_count` is **count-only**; do **not** pass `select` to it.
+
 ## Demos / Examples
 > **MATLAB Online users**  
 > This repository can be opened directly in MATLAB Online using the button above.  
