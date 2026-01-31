@@ -95,6 +95,12 @@ The front runner `oa_run_openalex` accepts OpenAlex-style strings and passes the
 - `select` (fetch-only): list of fields to return. Use `[]` or `""` to skip `select`
   (i.e., request the API default response). `oa_peek_count` is **count-only**; do **not** pass `select` to it.
 
+### Optional: filter by institution
+You can filter Works by **author affiliation** using an OpenAlex Institution ID.
+
+- `institutionId`: OpenAlex Institution ID (e.g., `"I123456789"`)
+- Internally translated to `authorships.institutions.id:<ID>` and passed to the Works API filter.
+
 ## Demos / Examples
 > **MATLAB Online users**  
 > This repository can be opened directly in MATLAB Online using the button above.  

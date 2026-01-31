@@ -25,6 +25,7 @@ function info = oa_peek_count(cfg, query, language, dateMode, fromDate, toDate, 
 % Name-Value options:
 %   "timeout" (seconds) default 30
 %   "verbose" (true/false) default true
+%   "institutionId" default ""  (OpenAlex Institution ID "I...", or full filter string)
 %
 % Output:
 %   info.count      : total hits (meta.count)
@@ -43,6 +44,7 @@ function info = oa_peek_count(cfg, query, language, dateMode, fromDate, toDate, 
 p = inputParser;
 addParameter(p, "timeout", 30, @(x) isnumeric(x) && isscalar(x) && x > 0);
 addParameter(p, "verbose", true, @(x) islogical(x) && isscalar(x));
+addParameter(p, "institutionId", "", @(x) ischar(x) || isstring(x));
 parse(p, varargin{:});
 opt = p.Results;
 
@@ -55,6 +57,8 @@ toDate   = string(toDate);
 type     = string(type);
 sort     = string(sort);
 mailto   = string(mailto);
+
+institutionId = string(opt.institutionId);
 
 if strlength(mailto) == 0
     if isfield(cfg,"defaults") && isfield(cfg.defaults,"mailto")
@@ -100,6 +104,15 @@ if strlength(fromDate) > 0
 end
 if strlength(toDate) > 0
     filterParts(end+1) = toKey + ":" + toDate;
+end
+
+if strlength(institutionId) > 0
+    % accept "I123..." or full filter like "authorships.institutions.id:I123..."
+    if contains(institutionId, ":")
+        filterParts(end+1) = institutionId;
+    else
+        filterParts(end+1) = "authorships.institutions.id:" + institutionId;
+    end
 end
 
 filterStr = strjoin(filterParts, ",");

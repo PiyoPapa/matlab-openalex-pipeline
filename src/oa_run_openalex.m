@@ -28,6 +28,7 @@ function out = oa_run_openalex(cfg, ...
 %   "progressEveryRecords" default 5000
 %   "keepInMemory" default false
 %   "tagPrefix" default ""   (optional prefix for filenames)
+%   "institutionId" default ""  (OpenAlex Institution ID "I...", or full filter string)
 
 p = inputParser;
 addParameter(p, "verbose", true, @(x) islogical(x) && isscalar(x));
@@ -36,6 +37,7 @@ addParameter(p, "saveEveryRecords", 10000, @(x) isnumeric(x) && isscalar(x) && x
 addParameter(p, "progressEveryRecords", 5000, @(x) isnumeric(x) && isscalar(x) && x >= 1);
 addParameter(p, "keepInMemory", false, @(x) islogical(x) && isscalar(x));
 addParameter(p, "tagPrefix", "", @(x) ischar(x) || isstring(x));
+addParameter(p, "institutionId", "", @(x) ischar(x) || isstring(x));
 parse(p, varargin{:});
 opt = p.Results;
 
@@ -49,10 +51,12 @@ type     = string(type);
 sort     = string(sort);
 
 % select can be string array OR "" OR empty
-if nargin < 9 || isempty(select)
+if isempty(select)
     select = strings(0,1);
 end
 select = string(select);
+
+institutionId = string(opt.institutionId);
 
 mailto = string(mailto);
 if strlength(mailto) == 0
@@ -118,6 +122,15 @@ if strlength(fromDate) > 0
 end
 if strlength(toDate) > 0
     filterParts(end+1) = toKey + ":" + toDate;
+end
+
+if strlength(institutionId) > 0
+    % accept "I123..." or full filter like "authorships.institutions.id:I123..."
+    if contains(institutionId, ":")
+        filterParts(end+1) = institutionId;
+    else
+        filterParts(end+1) = "authorships.institutions.id:" + institutionId;
+    end
 end
 
 filterStr = strjoin(filterParts, ",");
