@@ -100,6 +100,12 @@
 - `select`（fetch のみ）: 返却フィールドを絞るための指定。`[]` または `""` で `select` を省略し、
   API のデフォルトレスポンスを取得します。`oa_peek_count` は **count-only** のため `select` は渡さないでください。
 
+### Optional: 所属機関による絞り込み
+OpenAlex Institution ID を指定することで、**著者の所属機関に基づく絞り込み**が可能です。
+
+- `institutionId`: OpenAlex Institution ID（例：`"I123456789"`）
+- 内部的には `authorships.institutions.id:<ID>` として Works API の filter に渡されます。
+
 ## Demos / Examples
 > **MATLAB Online ユーザー向け**
 >  

@@ -7,9 +7,10 @@
 cfg = oa_bootstrap();
 query      = "matlab";
 language   = "en";
+institutionId = ""; % set to "I..." to filter by authorships.institutions.id
 
-fromDate = "2024-01-01";
-toDate   = "2024-01-31";
+fromDate = "2020-01-01";
+toDate   = "2025-01-31";
 type   = "article";
 sort   = "publication_date:desc";
 
@@ -20,6 +21,8 @@ sort   = "publication_date:desc";
 % - Do NOT use `select` with oa_peek_count (count-only).
 
 %select = ["id","title","publication_date","type"];
+% If you keep `select` commented out, initialize it as empty to avoid "undefined variable" errors.
+select = strings(0,1);
 
 mailto = ""; % RECOMMEND: Add your email.
 
@@ -27,7 +30,17 @@ mailto = ""; % RECOMMEND: Add your email.
 % oa_peek_count is *count-only* and makes a single lightweight request.
 % Do NOT pass 'select' here; some APIs may omit meta.count when select is used.
 % The returned count helps you decide maxRecords for the actual fetch step.
-info = oa_peek_count(cfg, query, language, "publication", fromDate, toDate, type, sort, mailto);
+info = oa_peek_count(cfg, ...
+    query, ...
+    language, ...
+    "publication", ...
+    fromDate, ...
+    toDate, ...
+    type, ...
+    sort, ...
+    mailto, ...
+    "institutionId", ...
+    institutionId);
 disp(info.count)
 
 %% Step 2. Run acquisition (fetch)
@@ -39,7 +52,8 @@ pauseSec   = 0.2;
 
 out = oa_run_openalex(cfg, ...
   query, language, "publication", fromDate, toDate, type, ...
-  sort, select, mailto, maxRecords, perPage, pauseSec);
+  sort, select, mailto, maxRecords, perPage, pauseSec, ...
+  "institutionId", institutionId);
 
 %% Step 3. Quick sanity check (first 3 Works, full fields)
 % NOTE:
